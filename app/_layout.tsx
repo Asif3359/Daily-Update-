@@ -1,7 +1,14 @@
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Stack } from "expo-router";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React from "react";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import "./globals.css";
+
+GoogleSignin.configure({
+  webClientId:
+    "492413845203-t70f1ba2m4pjuq42o60dkkrt00cd7aaj.apps.googleusercontent.com",
+  offlineAccess: false,
+});
 
 export default function RootLayout() {
   return (

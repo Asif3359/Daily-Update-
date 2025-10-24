@@ -17,6 +17,8 @@ interface InputProps extends TextInputProps {
   className?: string;
   passwordField?: boolean;
   icon?: any;
+  required?: boolean;
+  value?: string;
 }
 
 function Input({
@@ -28,6 +30,8 @@ function Input({
   labelClass = "",
   passwordField = false,
   icon,
+  required,
+  value,
   ...props
 }: InputProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -103,6 +107,7 @@ function Input({
           {label}
         </Text>
       )}
+
       <View className="relative">
         {icon && (
           <View
@@ -159,6 +164,11 @@ function Input({
           </TouchableOpacity>
         )}
       </View>
+      {required && !value?.trim() && (
+        <Text className="text-red-500 text-sm mt-1 px-4">
+          This field is required
+        </Text>
+      )}
 
       {error && (
         <Text className="text-red-500 text-sm mt-1 font-medium">{error}</Text>

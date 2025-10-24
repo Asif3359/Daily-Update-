@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Daily update",
-    "slug": "Daily_update",
+    "slug": "daylyupdateapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,6 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "bundleIdentifier": "com.asifahammednishst.daylyupdateapp",
       "supportsTablet": true
     },
     "android": {
@@ -20,13 +22,24 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.asifahammednishst.Daily_update"
+      "googleServicesFile": "./google-services.json",
+      "package": "com.asifahammednishst.daylyupdateapp"
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",

@@ -1,3 +1,4 @@
+import { getAuth, onAuthStateChanged } from "@react-native-firebase/auth";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -5,21 +6,22 @@ import "./globals.css";
 
 export default function Index() {
   const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState(false);
 
   useEffect(() => {
-    // Wait for next tick to ensure Root Layout is mounted
-    const timer = setTimeout(() => {
+    const auth = getAuth();
+    const subscriber = onAuthStateChanged(auth, (user) => {
       if (user) {
-        router.replace("/(tabs)/home");
+        // User is signed in, redirect to home
+        router.replace("/(tabs)/home" as any);
       } else {
-        router.replace("/(auth)/login");
+        // User is not signed in, redirect to login
+        router.replace("/(auth)/login" as any);
       }
-      setInitializing(false);
-    }, 20);
+      if (initializing) setInitializing(false);
+    });
 
-    return () => clearTimeout(timer);
-  }, []);
+    return subscriber;
+  }, [initializing]);
 
   if (initializing) {
     return (

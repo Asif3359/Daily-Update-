@@ -1,13 +1,21 @@
+import { handleGoogleLogin, handleLogin } from "@/Components/Auth/AuthHelp";
 import Button from "@/Components/Common/Button";
 import Input from "@/Components/Common/Input";
 // import TextButton from "@/Components/Common/TextButton";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import React from "react";
+import { router } from "expo-router";
+import React, { useState } from "react";
 import { Image, Text, View } from "react-native";
 
 const myIcon = require("../../assets/images/icon.png");
 
-function login() {
+function LoginScreen() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [emailReq, setEmailReq] = useState(false);
+  const [passReq, setPassReq] = useState(false);
+
   return (
     <View className="flex-1 justify-center px-3 bg-base">
       <View className="flex-row justify-center items-center mb-10">
@@ -22,12 +30,13 @@ function login() {
               color={"gray"}
             ></MaterialIcons>
           }
+          required={emailReq}
+          onChangeText={setEmail}
+          value={email}
           label="Email :"
           labelClass="text-xl font-bold "
           varient="outlined"
           placeholder="example@gmail.com"
-          multiline
-          numberOfLines={10}
           className="border-purple-400 rounded-lg mx-2 h-16 text-base"
         />
       </View>
@@ -36,6 +45,9 @@ function login() {
           icon={
             <MaterialIcons name="lock" size={24} color={"gray"}></MaterialIcons>
           }
+          required={passReq}
+          onChangeText={setPassword}
+          value={password}
           passwordField={true}
           label="Password :"
           labelClass="text-xl font-bold "
@@ -44,6 +56,11 @@ function login() {
           className="border-purple-400 rounded-lg mx-2 h-16 text-base"
         />
       </View>
+      {error && (
+        <View className="px-4 mt-2">
+          <Text className="text-red-500">{error}</Text>
+        </View>
+      )}
       <View className="flex-row justify-end px-2 my-2">
         <Button title="forgot password ?" variant="text"></Button>
       </View>
@@ -53,13 +70,26 @@ function login() {
         titleClassname="text-xl"
         variant="primary"
         size="lg"
-        onPress={() => console.log("click")}
+        onPress={() => {
+          if (email.trim() && password.trim()) {
+            handleLogin(setEmail, setPassword, setError, email, password);
+            setError("");
+          } else {
+            setError("Fill the required field");
+          }
+        }}
         hasShadow={false}
         className="mx-auto mt-4"
       />
       <View className="flex-row gap-2 justify-center items-center mt-2">
         <Text>if you dont have any account?</Text>
-        <Button title="signup" variant="text"></Button>
+        <Button
+          title="signup"
+          onPress={() => {
+            router.replace("/(auth)/signup" as any);
+          }}
+          variant="text"
+        ></Button>
       </View>
       <View className="my-4 flex-row items-center gap-4">
         <View className="flex-1 bg-gray-400 h-[2px]"></View>
@@ -70,6 +100,10 @@ function login() {
       </View>
       <View className="flex-row justify-center items-center gap-2">
         <Button
+          // setError
+          onPress={() => {
+            handleGoogleLogin(setError);
+          }}
           title="Google"
           titleClassname="text-xl"
           icon={
@@ -96,4 +130,4 @@ function login() {
   );
 }
 
-export default login;
+export default LoginScreen;
