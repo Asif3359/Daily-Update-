@@ -10,7 +10,10 @@ import {
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { router } from "expo-router";
 
-export const handleGoogleLogin = async (setError: (arg0: string) => void) => {
+export const handleGoogleLogin = async (
+  setError: (arg0: string) => void,
+  setIsLoading?: (loading: boolean) => void
+) => {
   try {
     // 1. Check if Play Services are available
     await GoogleSignin.hasPlayServices({
@@ -43,6 +46,10 @@ export const handleGoogleLogin = async (setError: (arg0: string) => void) => {
   } catch (error) {
     setError("Login with google Faield ");
     console.log("Google sign-in error: ", error);
+  } finally {
+    if (setIsLoading) {
+      setIsLoading(false);
+    }
   }
 };
 
@@ -51,22 +58,25 @@ export const handleLogin = async (
   setPassword: (arg0: string) => void,
   setError: (arg0: string) => void,
   email: string,
-  password: string
+  password: string,
+  setIsLoading?: (loading: boolean) => void
 ) => {
-  await signInWithEmailAndPassword(getAuth(), email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      console.log("User signed in!");
-      console.log(email);
-      console.log(password);
-      setEmail("");
-      setPassword("");
-      router.replace("/(tabs)/home" as any);
-    })
-    .catch((error) => {
-      setError("Login with Faield ");
-      console.log(error);
-    });
+  try {
+    await signInWithEmailAndPassword(getAuth(), email, password);
+    console.log("User signed in!");
+    console.log(email);
+    console.log(password);
+    setEmail("");
+    setPassword("");
+    router.replace("/(tabs)/home" as any);
+  } catch (error) {
+    setError("Login with Faield ");
+    console.log(error);
+  } finally {
+    if (setIsLoading) {
+      setIsLoading(false);
+    }
+  }
 };
 
 export const handleSignup = async (
@@ -76,7 +86,8 @@ export const handleSignup = async (
   setError: (arg0: string) => void,
   name: string,
   email: string,
-  password: string
+  password: string,
+  setIsLoading?: (loading: boolean) => void
 ) => {
   try {
     const auth = getAuth();
@@ -104,6 +115,10 @@ export const handleSignup = async (
     }
 
     console.error("Signup error:", error);
+  } finally {
+    if (setIsLoading) {
+      setIsLoading(false);
+    }
   }
 };
 

@@ -13,6 +13,8 @@ function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   return (
     <View className="flex-1 justify-center px-3 bg-base">
@@ -65,7 +67,7 @@ function SignupScreen() {
           label="Password :"
           labelClass="text-xl font-bold "
           varient="outlined"
-          placeholder="example@gmail.com"
+          placeholder="********"
           className="border-purple-400 rounded-lg mx-2 h-16 text-base"
         />
       </View>
@@ -83,8 +85,10 @@ function SignupScreen() {
         titleClassname="text-xl"
         variant="primary"
         size="lg"
+        loading={isLoading}
         onPress={() => {
           if (name.trim() && email.trim() && password.trim()) {
+            setIsLoading(true);
             handleSignup(
               setName,
               setEmail,
@@ -92,7 +96,8 @@ function SignupScreen() {
               setError,
               name,
               email,
-              password
+              password,
+              setIsLoading
             );
             setError("");
           } else {
@@ -122,10 +127,12 @@ function SignupScreen() {
       <View className="flex-row justify-center items-center gap-2">
         <Button
           onPress={() => {
-            handleGoogleLogin(setError);
+            setIsGoogleLoading(true);
+            handleGoogleLogin(setError, setIsGoogleLoading);
           }}
           title="Google"
           titleClassname="text-xl"
+          loading={isGoogleLoading}
           icon={
             <MaterialCommunityIcons
               name="google"

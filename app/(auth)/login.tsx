@@ -13,8 +13,10 @@ function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [emailReq, setEmailReq] = useState(false);
-  const [passReq, setPassReq] = useState(false);
+  const [emailReq] = useState(false);
+  const [passReq] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   return (
     <View className="flex-1 justify-center px-3 bg-base">
@@ -52,7 +54,7 @@ function LoginScreen() {
           label="Password :"
           labelClass="text-xl font-bold "
           varient="outlined"
-          placeholder="example@gmail.com"
+          placeholder="********"
           className="border-purple-400 rounded-lg mx-2 h-16 text-base"
         />
       </View>
@@ -70,9 +72,11 @@ function LoginScreen() {
         titleClassname="text-xl"
         variant="primary"
         size="lg"
+        loading={isLoading}
         onPress={() => {
           if (email.trim() && password.trim()) {
-            handleLogin(setEmail, setPassword, setError, email, password);
+            setIsLoading(true);
+            handleLogin(setEmail, setPassword, setError, email, password, setIsLoading);
             setError("");
           } else {
             setError("Fill the required field");
@@ -102,10 +106,12 @@ function LoginScreen() {
         <Button
           // setError
           onPress={() => {
-            handleGoogleLogin(setError);
+            setIsGoogleLoading(true);
+            handleGoogleLogin(setError, setIsGoogleLoading);
           }}
           title="Google"
           titleClassname="text-xl"
+          loading={isGoogleLoading}
           icon={
             <MaterialCommunityIcons
               name="google"

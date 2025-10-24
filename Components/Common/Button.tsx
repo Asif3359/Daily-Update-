@@ -99,18 +99,17 @@ export default function Button({
 
   return (
     <TouchableOpacity
-      className={`${baseStyles} ${variantStyles} ${sizeStyles} ${disabledStyles} ${className}`}
+      className={`${baseStyles} ${variantStyles} ${sizeStyles} ${disabledStyles} ${className} ${loading ? "opacity-50" : ""}`}
       disabled={disabled || loading}
       {...props}
     >
-      {loading && <Text className="text-white mr-2">⏳</Text>}
       <View className="flex-row gap-2 justify-center items-center">
         {title && (
           <Text className={`${textColor} ${titleClassname} font-semibold`}>
-            {loading ? "Loading..." : title}{" "}
+            {loading ? "Loading..." : title}
           </Text>
         )}
-        {icon && (
+        {icon && !loading && (
           <Text className={`${textColor} ${titleClassname} font-semibold`}>
             {icon && icon}
           </Text>
