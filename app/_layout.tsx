@@ -1,6 +1,8 @@
+import { RealmProvider } from "@/providers/RealmProvider";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Stack } from "expo-router";
 import React from "react";
+import "react-native-get-random-values";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import "./globals.css";
 
@@ -12,14 +14,16 @@ GoogleSignin.configure({
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <RealmProvider>
+      <SafeAreaProvider>
+        <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </RealmProvider>
   );
 }

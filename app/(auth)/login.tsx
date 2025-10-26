@@ -69,21 +69,28 @@ function LoginScreen() {
       <Button
         icon={<MaterialIcons name="login" size={24}></MaterialIcons>}
         title="Login"
-        titleClassname="text-xl"
+        titleClassname="text-xl text-white"
         variant="primary"
         size="lg"
         loading={isLoading}
         onPress={() => {
           if (email.trim() && password.trim()) {
             setIsLoading(true);
-            handleLogin(setEmail, setPassword, setError, email, password, setIsLoading);
+            handleLogin(
+              setEmail,
+              setPassword,
+              setError,
+              email,
+              password,
+              setIsLoading
+            );
             setError("");
           } else {
             setError("Fill the required field");
           }
         }}
         hasShadow={false}
-        className="mx-auto mt-4"
+        className="mx-auto mt-4 bg-gray-600 "
       />
       <View className="flex-row gap-2 justify-center items-center mt-2">
         <Text>if you dont have any account?</Text>

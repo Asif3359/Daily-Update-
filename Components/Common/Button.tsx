@@ -54,12 +54,12 @@ export default function Button({
       case "info":
         return "bg-cyan-500";
       case "outline":
-        return "bg-transparent border-2 border-indigo-500";
+        return "bg-transparent border-2 ";
       case "ghost":
         return "bg-transparent";
       case "primary":
       default:
-        return "bg-indigo-500";
+        return "";
     }
   };
 
@@ -99,18 +99,18 @@ export default function Button({
 
   return (
     <TouchableOpacity
-      className={`${baseStyles} ${variantStyles} ${sizeStyles} ${disabledStyles} ${className} ${loading ? "opacity-50" : ""}`}
+      className={`${className} ${baseStyles} ${variantStyles} ${sizeStyles} ${disabledStyles}  ${loading ? "opacity-50" : ""}`}
       disabled={disabled || loading}
       {...props}
     >
       <View className="flex-row gap-2 justify-center items-center">
         {title && (
-          <Text className={`${textColor} ${titleClassname} font-semibold`}>
+          <Text className={` ${titleClassname} font-semibold`}>
             {loading ? "Loading..." : title}
           </Text>
         )}
         {icon && !loading && (
-          <Text className={`${textColor} ${titleClassname} font-semibold`}>
+          <Text className={` ${titleClassname} font-semibold`}>
             {icon && icon}
           </Text>
         )}
