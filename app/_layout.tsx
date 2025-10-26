@@ -1,10 +1,7 @@
-// app/_layout.tsx (or your root layout file)
-import { DatabaseProvider } from "@nozbe/watermelondb/react";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Stack } from "expo-router";
 import React from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import database from "../src/database/database";
 import "./globals.css";
 
 GoogleSignin.configure({
@@ -15,16 +12,14 @@ GoogleSignin.configure({
 
 export default function RootLayout() {
   return (
-    <DatabaseProvider database={database}>
-      <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-          </Stack>
-        </SafeAreaView>
-      </SafeAreaProvider>
-    </DatabaseProvider>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
