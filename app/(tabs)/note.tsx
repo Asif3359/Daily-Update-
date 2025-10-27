@@ -1,0 +1,121 @@
+import { useNotes } from "@/hooks/useNotes";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { router } from "expo-router";
+import React from "react";
+import { Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+type RootStackParamList = {
+  CreateNote: undefined;
+  NoteDetail: { noteId: string };
+};
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+function NoteScreen() {
+  const { notes, deleteNote } = useNotes();
+  const navigation = useNavigation<NavigationProp>();
+
+  const handleDeleteNote = (noteId: Realm.BSON.ObjectId, noteTitle: string) => {
+    Alert.alert(
+      "Delete Note",
+      `Are you sure you want to delete "${noteTitle}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteNote(noteId),
+        },
+      ]
+    );
+  };
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const renderNoteItem = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      className="bg-white rounded-lg p-4 mb-3 mx-2 shadow-sm border border-gray-100"
+      onPress={() =>
+        router.push({
+          pathname: "/appModels/CreateNote",
+          params: { noteId: item._id.toString() },
+        })
+      }
+      onLongPress={() => handleDeleteNote(item._id, item.title)}
+    >
+      <View className="flex-row justify-between items-start mb-2">
+        <Text
+          className="text-lg font-semibold text-gray-800 flex-1 mr-2"
+          numberOfLines={2}
+        >
+          {item.title}
+        </Text>
+        <TouchableOpacity
+          onPress={() => handleDeleteNote(item._id, item.title)}
+          className="p-1"
+        >
+          <Ionicons name="trash-outline" size={18} color="#666" />
+        </TouchableOpacity>
+      </View>
+      <Text className="text-gray-600 text-sm mb-3" numberOfLines={3}>
+        {item.note}
+      </Text>
+      <Text className="text-gray-400 text-xs">
+        {formatDate(item.updatedAt)}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView className="flex-1 bg-gray-50">
+      {/* Header */}
+      <View className="bg-white px-6 py-4 border-b border-gray-200">
+        <Text className="text-2xl font-bold text-gray-900">My Notes</Text>
+        <Text className="text-gray-500 text-sm mt-1">
+          {notes.length} {notes.length === 1 ? "note" : "notes"}
+        </Text>
+      </View>
+
+      {/* Notes List */}
+      {notes.length > 0 ? (
+        <FlatList
+          data={notes}
+          renderItem={renderNoteItem}
+          keyExtractor={(item) => item._id.toString()}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 16 }}
+          className="flex-1"
+        />
+      ) : (
+        <View className="flex-1 justify-center items-center px-10">
+          <Ionicons name="document-text-outline" size={64} color="#d1d5db" />
+          <Text className="text-xl font-semibold text-gray-400 mt-4 text-center">
+            No notes yet
+          </Text>
+          <Text className="text-gray-400 text-center mt-2">
+            Tap the + button to create your first note
+          </Text>
+        </View>
+      )}
+
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        className="absolute bottom-6 right-6 w-14 h-14 bg-blue-500 rounded-full justify-center items-center shadow-lg"
+        onPress={() => router.push("/appModels/CreateNote")}
+      >
+        <Ionicons name="add" size={24} color="white" />
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
+}
+
+export default NoteScreen;

@@ -22,6 +22,15 @@ function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="note"
+        options={{
+          title: "Note",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="note" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "profile",
