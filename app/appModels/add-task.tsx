@@ -69,6 +69,7 @@ export default function AddTaskScreen() {
 
     createTask(
       title.trim(),
+      "asifahammednishst@gmail.com",
       description.trim(),
       priority,
       dueDateObj,

@@ -9,12 +9,14 @@ export function useNotes() {
 
     const createNote = useCallback(async (
         title: string,
-        note: string
+        note: string,
+        userEmail: string
     ) => {
         realm.write(() => {
             realm.create('Note', Note.generate(
                 title,
-                note
+                note,
+                userEmail
             ));
         });
     }, [realm]);

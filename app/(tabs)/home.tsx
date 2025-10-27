@@ -114,6 +114,8 @@ const TaskItem = ({
               })}
             </Text>
           )}
+
+          <Text className="text-xs">{item?.userEmail}</Text>
         </View>
 
         <View className="absolute bottom-2 right-2">

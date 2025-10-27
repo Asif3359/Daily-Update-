@@ -18,9 +18,11 @@ export class Task extends Realm.Object<Task> {
     actualTime?: number; // in minutes
     subtasks?: string; // JSON string or simple list
     notes?: string;
+    userEmail!: string;
 
     static generate(
         title: string,
+        userEmail: string,
         description?: string,
         status: 'todo' | 'in-progress' | 'done' = 'todo',
         priority: 'low' | 'medium' | 'high' = 'medium',
@@ -29,7 +31,8 @@ export class Task extends Realm.Object<Task> {
         isImportant: boolean = false,
         tags: string[] = [],
         category?: string,
-        estimatedTime?: number
+        estimatedTime?: number,
+
     ) {
         return {
             _id: new Realm.BSON.ObjectId(),
@@ -49,6 +52,7 @@ export class Task extends Realm.Object<Task> {
             actualTime: 0,
             subtasks: '',
             notes: '',
+            userEmail,
         };
     }
 
@@ -73,6 +77,7 @@ export class Task extends Realm.Object<Task> {
             actualTime: 'int?',
             subtasks: 'string?',
             notes: 'string?',
+            userEmail: 'string?'
         },
     };
 }

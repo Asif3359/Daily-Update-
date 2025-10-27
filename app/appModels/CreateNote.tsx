@@ -1,5 +1,6 @@
 import { useNotes } from "@/hooks/useNotes";
 import { Ionicons } from "@expo/vector-icons";
+import { getAuth } from "@react-native-firebase/auth";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -19,6 +20,9 @@ export default function CreateNoteScreen() {
   const params = useLocalSearchParams();
   const noteId = params.noteId as string;
   const isEditMode = !!noteId;
+
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   const richText = useRef<RichEditor>(null);
 
@@ -48,7 +52,7 @@ export default function CreateNoteScreen() {
       updateNote(objectId, { title, note: content });
       Alert.alert("Success", "Note updated successfully");
     } else {
-      createNote(title, content);
+      createNote(title, content, user?.email || "");
     }
 
     router.back();

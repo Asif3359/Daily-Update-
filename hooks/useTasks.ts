@@ -8,6 +8,7 @@ export function useTasks() {
 
     const createTask = useCallback(async (
         title: string,
+        userEmail: string,
         description?: string,
         priority: 'low' | 'medium' | 'high' = 'medium',
         dueDate?: Date,
@@ -15,12 +16,14 @@ export function useTasks() {
         isImportant: boolean = false,
         tags: string[] = [],
         category?: string,
-        estimatedTime?: number
+        estimatedTime?: number,
+
     ) => {
         let taskId: Realm.BSON.ObjectId | null = null;
         realm.write(() => {
             realm.create('Task', Task.generate(
                 title,
+                userEmail,
                 description,
                 'todo',
                 priority,
@@ -29,7 +32,8 @@ export function useTasks() {
                 isImportant,
                 tags,
                 category,
-                estimatedTime
+                estimatedTime,
+
             ));
         });
     }, [realm]);

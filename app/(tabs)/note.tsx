@@ -94,6 +94,7 @@ function NoteScreen() {
       <Text className="text-black/50 text-xs">
         {formatDate(item.updatedAt)}
       </Text>
+      <Text className="text-xs">{item?.userEmail}</Text>
     </TouchableOpacity>
   );
 
