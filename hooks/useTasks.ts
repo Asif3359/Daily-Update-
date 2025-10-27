@@ -72,6 +72,12 @@ export function useTasks() {
         }
     }, [realm]);
 
+
+    const getTaskById = useCallback((taskId: Realm.BSON.ObjectId) => {
+        const task = realm.objectForPrimaryKey(Task, taskId);
+        return task;
+    }, [realm])
+
     const getTasksByStatus = useCallback((status: 'todo' | 'in-progress' | 'done') => {
         return tasks.filtered(`status = "${status}"`);
     }, [tasks]);
@@ -117,6 +123,7 @@ export function useTasks() {
         updateTaskStatus,
         updateTask,
         deleteTask,
+        getTaskById,
         getTasksByStatus,
         getTasksByPriority,
         getImportantTasks,

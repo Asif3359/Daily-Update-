@@ -2,9 +2,9 @@ import Button from "@/Components/Common/Button";
 import Cart from "@/Components/Common/Cart";
 import { useTasks } from "@/hooks/useTasks";
 import { Task } from "@/models/Task";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { getAuth } from "@react-native-firebase/auth";
-import { useRouter } from "expo-router";
+import { router, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   Alert,
@@ -49,7 +49,16 @@ const TaskItem = ({
   };
 
   return (
-    <Cart className="mb-2 p-3 bg-white border border-gray-300 rounded-xl relative">
+    <TouchableOpacity
+      className="bg-white rounded-lg p-4 mb-3 mx-2 shadow-sm border border-gray-200 relative"
+      onPress={() =>
+        router.push({
+          pathname: "/appModels/add-task",
+          params: { taskId: item._id.toString() },
+        })
+      }
+      onLongPress={() => handleDeleteTask(item)}
+    >
       <View className="flex-row justify-between items-start">
         <View className="flex-1">
           <Text className="text-lg font-semibold text-black">{item.title}</Text>
@@ -173,7 +182,7 @@ const TaskItem = ({
           </TouchableOpacity>
         </Animated.View>
       )}
-    </Cart>
+    </TouchableOpacity>
   );
 };
 
@@ -231,17 +240,8 @@ function HomeScreen() {
         ))}
       </View>
 
-      <Button
-        title=" + Add New Task"
-        variant="outline"
-        size="lg"
-        className="border border-gray-400 bg-white"
-        titleClassname="text-black"
-        onPress={() => router.push("../appModels/add-task")}
-      />
-
       {/* Tasks List */}
-      <Cart className="flex-1 p-3 bg-gray-50 border border-gray-300 mt-3 rounded-xl">
+      <Cart className="flex-1 p-3 mt-3 rounded-xl">
         <Text className="text-xl font-bold mb-3 text-black">
           My Tasks ({tasks.length})
         </Text>
@@ -257,7 +257,7 @@ function HomeScreen() {
               size="lg"
               className="border border-gray-400 bg-white"
               titleClassname="text-black"
-              onPress={() => router.push("../appModels/add-task")}
+              onPress={() => router.push("/appModels/add-task")}
             />
           </View>
         ) : (
@@ -275,6 +275,12 @@ function HomeScreen() {
           />
         )}
       </Cart>
+      <TouchableOpacity
+        className="absolute bottom-6 right-6 w-14 h-14 bg-black rounded-full justify-center items-center shadow-lg z-10"
+        onPress={() => router.push("/appModels/add-task")}
+      >
+        <Ionicons name="add" size={24} color="white" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }

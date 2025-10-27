@@ -2,8 +2,8 @@ import Button from "@/Components/Common/Button";
 import Cart from "@/Components/Common/Cart";
 import { useTasks } from "@/hooks/useTasks";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -14,11 +14,11 @@ import {
 } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Realm from "realm";
 
 export default function AddTaskScreen() {
   const router = useRouter();
-  const { createTask } = useTasks();
-
+  const { createTask, getTaskById, updateTask } = useTasks();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
@@ -29,6 +29,34 @@ export default function AddTaskScreen() {
   const [reminderDate, setReminderDate] = useState<Date | null>(null);
   const [showDueDatePicker, setShowDueDatePicker] = useState(false);
   const [showReminderPicker, setShowReminderPicker] = useState(false);
+
+  const params = useLocalSearchParams();
+  const taskId = params.taskId as string;
+  const isEditMode = !!taskId;
+
+  useEffect(() => {
+    if (isEditMode && taskId) {
+      try {
+        // Convert string to ObjectId
+        const objectId = new Realm.BSON.ObjectId(taskId);
+
+        const task = getTaskById(objectId);
+        if (task) {
+          setTitle(task.title);
+          setDescription(task.description || " ");
+          setPriority(task.priority || "medium");
+          setIsImportant(task.isImportant || false);
+          setCategory(task.category || "");
+          setEstimatedTime(task.estimatedTime?.toString() || "");
+          setDueDate(task.dueDate || null);
+          setReminderDate(task.reminderDate || null);
+        }
+      } catch (error) {
+        console.error("Invalid task ID:", error);
+        Alert.alert("Error", "Invalid task ID");
+      }
+    }
+  }, [isEditMode, taskId]);
 
   const handleAddTask = () => {
     if (title.trim() === "") {
@@ -59,23 +87,91 @@ export default function AddTaskScreen() {
     ]);
   };
 
+  const handleUpdate = () => {
+    if (title.trim() === "") {
+      Alert.alert("Error", "Please enter a task title");
+      return;
+    }
+
+    if (!taskId) {
+      Alert.alert("Error", "Task ID not found");
+      return;
+    }
+
+    try {
+      // Convert string to ObjectId for update
+
+      const objectId = new Realm.BSON.ObjectId(taskId);
+
+      const updates = {
+        title: title.trim(),
+        description: description.trim(),
+        priority,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        reminderDate: reminderDate ? new Date(reminderDate) : null,
+        isImportant,
+        category: category.trim() || null,
+        estimatedTime: estimatedTime ? parseInt(estimatedTime) : null,
+      };
+
+      updateTask(objectId, updates as any);
+
+      Alert.alert("Success", "Task updated successfully!", [
+        {
+          text: "OK",
+          onPress: () => router.back(),
+        },
+      ]);
+    } catch (error) {
+      console.error("Error updating task:", error);
+      Alert.alert("Error", "Failed to update task");
+    }
+  };
+
+  const handleSave = () => {
+    if (isEditMode) {
+      handleUpdate();
+    } else {
+      handleAddTask();
+    }
+  };
+
+  const handleGoBack = () => {
+    if (title.trim() || description.trim()) {
+      Alert.alert(
+        "Discard Changes",
+        "You have unsaved changes. Are you sure you want to discard?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Discard",
+            style: "destructive",
+            onPress: () => router.back(),
+          },
+        ]
+      );
+    } else {
+      router.back();
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 px-2 pb-2 bg-white">
       {/* Header */}
-      <View className="flex-row items-center pb-2">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
+      <View className="flex-row items-center gap-2 pb-2">
+        <TouchableOpacity onPress={handleGoBack} className="mr-4">
           <MaterialIcons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
         <Text
           className="text-2xl font-bold text-black flex-shrink"
           numberOfLines={1}
         >
-          Add New Task
+          {isEditMode ? "Edit Task" : "Add New Task"}
         </Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <Cart className="p-4 mb-4 bg-white border border-gray-300 rounded-xl shadow-sm">
+        <Cart className="p-4 mb-4 bg-white rounded-xl shadow-sm">
           {/* Task Title */}
           <Text className="text-lg font-semibold text-black mb-2">Title *</Text>
           <TextInput
@@ -136,7 +232,7 @@ export default function AddTaskScreen() {
             <TouchableOpacity
               onPress={() => setIsImportant(!isImportant)}
               className={`w-12 h-6 rounded-full ${
-                isImportant ? "bg-blue-500" : "bg-gray-300"
+                isImportant ? "bg-gray-900" : "bg-gray-300"
               }`}
             >
               <View
@@ -228,14 +324,14 @@ export default function AddTaskScreen() {
             keyboardType="numeric"
           />
 
-          {/* Add Task Button */}
+          {/* Save/Update Button */}
           <Button
-            title="Add Task"
+            title={isEditMode ? "Update Task" : "Add Task"}
             variant="outline"
             size="lg"
             className="border-2 border-gray-600 bg-white"
             titleClassname="text-black font-semibold"
-            onPress={handleAddTask}
+            onPress={handleSave}
             disabled={!title.trim()}
           />
         </Cart>

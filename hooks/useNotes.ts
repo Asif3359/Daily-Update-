@@ -2,6 +2,7 @@ import { Note } from '@/models/Note';
 import { useQuery, useRealm } from '@realm/react';
 import { useCallback } from 'react';
 
+
 export function useNotes() {
     const realm = useRealm();
     const notes = useQuery(Note).sorted('createdAt', true);

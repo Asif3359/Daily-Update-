@@ -1,15 +1,13 @@
-import React from "react";
-
-import { Tabs } from "expo-router";
-
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import React from "react";
 
 function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#007AFF",
+        tabBarActiveTintColor: "#000000ff",
       }}
     >
       <Tabs.Screen
@@ -24,16 +22,16 @@ function TabLayout() {
       <Tabs.Screen
         name="note"
         options={{
-          title: "Note",
+          title: "Notes",
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="notes" size={size} color={color} />
+            <MaterialIcons name="sticky-note-2" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "profile",
+          title: "Profile",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name="face-man-profile"
