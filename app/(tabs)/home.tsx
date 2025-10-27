@@ -77,7 +77,7 @@ const TaskItem = ({
           <View className="flex-row flex-wrap  gap-2 mt-2">
             {item.priority && item.priority !== "medium" && (
               <View className="bg-gray-200 rounded-full">
-                <Text className="text-xs  text-black ">{item.priority}</Text>
+                <Text className="text-xs  text-black px-1 py-1">{item.priority}</Text>
               </View>
             )}
             {item.isImportant && (

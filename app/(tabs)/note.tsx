@@ -1,8 +1,6 @@
 import { useNotes } from "@/hooks/useNotes";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   Alert,
@@ -15,16 +13,9 @@ import {
 import RenderHtml from "react-native-render-html";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-type RootStackParamList = {
-  CreateNote: undefined;
-  NoteDetail: { noteId: string };
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
 function NoteScreen() {
   const { notes, deleteNote } = useNotes();
-  const navigation = useNavigation<NavigationProp>();
+  const router = useRouter();
 
   const handleDeleteNote = (noteId: Realm.BSON.ObjectId, noteTitle: string) => {
     Alert.alert(
