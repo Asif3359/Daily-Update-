@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import DatePicker from "react-native-date-picker";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AddTaskScreen() {
   const router = useRouter();
@@ -35,7 +36,6 @@ export default function AddTaskScreen() {
       return;
     }
 
-    // Convert date strings to Date objects
     const dueDateObj = dueDate ? new Date(dueDate) : undefined;
     const reminderDateObj = reminderDate ? new Date(reminderDate) : undefined;
 
@@ -46,7 +46,7 @@ export default function AddTaskScreen() {
       dueDateObj,
       reminderDateObj,
       isImportant,
-      [], // tags - you can add tag input later
+      [],
       category.trim() || undefined,
       estimatedTime ? parseInt(estimatedTime) : undefined
     );
@@ -60,37 +60,40 @@ export default function AddTaskScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-200 px-2 pb-2">
+    <SafeAreaView className="flex-1 px-2 pb-2 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-gray-900 border-b border-gray-700">
+      <View className="flex-row items-center pb-2">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <MaterialIcons name="arrow-back" size={24} color="white" />
+          <MaterialIcons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
         <Text
-          className="text-2xl font-bold text-white flex-shrink"
+          className="text-2xl font-bold text-black flex-shrink"
           numberOfLines={1}
         >
           Add New Task
         </Text>
       </View>
+
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <Cart className="p-4 mb-4">
+        <Cart className="p-4 mb-4 bg-white border border-gray-300 rounded-xl shadow-sm">
           {/* Task Title */}
-          <Text className="text-lg font-semibold  mb-2">Title *</Text>
+          <Text className="text-lg font-semibold text-black mb-2">Title *</Text>
           <TextInput
-            className="bg-gray-700 text-white p-3 rounded mb-4"
+            className="bg-gray-100 text-black p-3 rounded mb-4 border border-gray-300"
             placeholder="Enter task title"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#6B7280"
             value={title}
             onChangeText={setTitle}
           />
 
           {/* Description */}
-          <Text className="text-lg font-semibold  mb-2">Description</Text>
+          <Text className="text-lg font-semibold text-black mb-2">
+            Description
+          </Text>
           <TextInput
-            className="bg-gray-700 text-white p-3 rounded mb-4 min-h-[100px]"
+            className="bg-gray-100 text-black p-3 rounded mb-4 min-h-[100px] border border-gray-300"
             placeholder="Enter task description"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#6B7280"
             value={description}
             onChangeText={setDescription}
             multiline
@@ -98,7 +101,9 @@ export default function AddTaskScreen() {
           />
 
           {/* Priority */}
-          <Text className="text-lg font-semibold  mb-2">Priority</Text>
+          <Text className="text-lg font-semibold text-black mb-2">
+            Priority
+          </Text>
           <View className="flex-row justify-between mb-4">
             {(["low", "medium", "high"] as const).map((level) => (
               <TouchableOpacity
@@ -109,12 +114,16 @@ export default function AddTaskScreen() {
                     ? level === "low"
                       ? "bg-green-500"
                       : level === "medium"
-                        ? "bg-yellow-500"
+                        ? "bg-yellow-400"
                         : "bg-red-500"
-                    : "bg-gray-600"
+                    : "bg-gray-200"
                 }`}
               >
-                <Text className="text-white text-center font-semibold capitalize">
+                <Text
+                  className={`text-center font-semibold capitalize ${
+                    priority === level ? "text-white" : "text-black"
+                  }`}
+                >
                   {level}
                 </Text>
               </TouchableOpacity>
@@ -123,11 +132,11 @@ export default function AddTaskScreen() {
 
           {/* Important Toggle */}
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-lg font-semibold ">Important</Text>
+            <Text className="text-lg font-semibold text-black">Important</Text>
             <TouchableOpacity
               onPress={() => setIsImportant(!isImportant)}
               className={`w-12 h-6 rounded-full ${
-                isImportant ? "bg-blue-500" : "bg-gray-600"
+                isImportant ? "bg-blue-500" : "bg-gray-300"
               }`}
             >
               <View
@@ -139,12 +148,14 @@ export default function AddTaskScreen() {
           </View>
 
           {/* Due Date */}
-          <Text className="text-lg font-semibold mb-2">Due Date</Text>
+          <Text className="text-lg font-semibold text-black mb-2">
+            Due Date
+          </Text>
           <TouchableOpacity
             onPress={() => setShowDueDatePicker(true)}
-            className="bg-gray-700 p-3 rounded mb-4"
+            className="bg-gray-100 p-3 rounded mb-4 border border-gray-300"
           >
-            <Text className="text-white">
+            <Text className="text-black">
               {dueDate ? dueDate.toLocaleDateString() : "Select due date"}
             </Text>
           </TouchableOpacity>
@@ -163,17 +174,19 @@ export default function AddTaskScreen() {
           />
 
           {/* Reminder Date */}
-          <Text className="text-lg font-semibold mb-2">Reminder Date</Text>
+          <Text className="text-lg font-semibold text-black mb-2">
+            Reminder Date
+          </Text>
           <TouchableOpacity
             onPress={() => setShowReminderPicker(true)}
-            className="bg-gray-700 p-4 rounded-lg mb-4 flex-row justify-between items-center"
+            className="bg-gray-100 p-4 rounded-lg mb-4 flex-row justify-between items-center border border-gray-300"
           >
-            <Text className="text-white text-base">
+            <Text className="text-black text-base">
               {reminderDate
                 ? reminderDate.toLocaleString()
                 : "Select reminder date and time"}
             </Text>
-            <MaterialIcons name="notifications" size={20} color="#9CA3AF" />
+            <MaterialIcons name="notifications" size={20} color="#6B7280" />
           </TouchableOpacity>
 
           <DatePicker
@@ -191,23 +204,25 @@ export default function AddTaskScreen() {
           />
 
           {/* Category */}
-          <Text className="text-lg font-semibold  mb-2">Category</Text>
+          <Text className="text-lg font-semibold text-black mb-2">
+            Category
+          </Text>
           <TextInput
-            className="bg-gray-700 text-white p-3 rounded mb-4"
+            className="bg-gray-100 text-black p-3 rounded mb-4 border border-gray-300"
             placeholder="e.g., Work, Personal, Shopping"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#6B7280"
             value={category}
             onChangeText={setCategory}
           />
 
           {/* Estimated Time */}
-          <Text className="text-lg font-semibold  mb-2">
+          <Text className="text-lg font-semibold text-black mb-2">
             Estimated Time (minutes)
           </Text>
           <TextInput
-            className="bg-gray-700 text-white p-3 rounded mb-6"
+            className="bg-gray-100 text-black p-3 rounded mb-6 border border-gray-300"
             placeholder="e.g., 30"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#6B7280"
             value={estimatedTime}
             onChangeText={setEstimatedTime}
             keyboardType="numeric"
@@ -218,14 +233,14 @@ export default function AddTaskScreen() {
             title="Add Task"
             variant="outline"
             size="lg"
-            className="border-2 border-gray-600"
-            titleClassname="text-gray-800"
+            className="border-2 border-gray-600 bg-white"
+            titleClassname="text-black font-semibold"
             onPress={handleAddTask}
             disabled={!title.trim()}
-          ></Button>
+          />
         </Cart>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

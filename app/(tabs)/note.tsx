@@ -43,7 +43,7 @@ function NoteScreen() {
 
   const renderNoteItem = ({ item }: { item: any }) => (
     <TouchableOpacity
-      className="bg-white rounded-lg p-4 mb-3 mx-2 shadow-sm border border-gray-100"
+      className="bg-white rounded-lg p-4 mb-3 mx-2 shadow-sm border border-gray-200"
       onPress={() =>
         router.push({
           pathname: "/appModels/CreateNote",
@@ -54,7 +54,7 @@ function NoteScreen() {
     >
       <View className="flex-row justify-between items-start mb-2">
         <Text
-          className="text-lg font-semibold text-gray-800 flex-1 mr-2"
+          className="text-lg font-semibold text-black flex-1 mr-2"
           numberOfLines={2}
         >
           {item.title}
@@ -63,24 +63,24 @@ function NoteScreen() {
           onPress={() => handleDeleteNote(item._id, item.title)}
           className="p-1"
         >
-          <Ionicons name="trash-outline" size={18} color="#666" />
+          <Ionicons name="trash-outline" size={18} color="#000" />
         </TouchableOpacity>
       </View>
-      <Text className="text-gray-600 text-sm mb-3" numberOfLines={3}>
+      <Text className="text-black/70 text-sm mb-3" numberOfLines={3}>
         {item.note}
       </Text>
-      <Text className="text-gray-400 text-xs">
+      <Text className="text-black/50 text-xs">
         {formatDate(item.updatedAt)}
       </Text>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 px-2 pb-2 bg-white">
       {/* Header */}
-      <View className="bg-white px-6 py-4 border-b border-gray-200">
-        <Text className="text-2xl font-bold text-gray-900">My Notes</Text>
-        <Text className="text-gray-500 text-sm mt-1">
+      <View className="bg-white pb-2 border-b border-gray-300">
+        <Text className="text-2xl font-bold text-black">My Notes</Text>
+        <Text className="text-black/60 text-sm mt-1">
           {notes.length} {notes.length === 1 ? "note" : "notes"}
         </Text>
       </View>
@@ -97,11 +97,11 @@ function NoteScreen() {
         />
       ) : (
         <View className="flex-1 justify-center items-center px-10">
-          <Ionicons name="document-text-outline" size={64} color="#d1d5db" />
-          <Text className="text-xl font-semibold text-gray-400 mt-4 text-center">
+          <Ionicons name="document-text-outline" size={64} color="#999" />
+          <Text className="text-xl font-semibold text-black/40 mt-4 text-center">
             No notes yet
           </Text>
-          <Text className="text-gray-400 text-center mt-2">
+          <Text className="text-black/40 text-center mt-2">
             Tap the + button to create your first note
           </Text>
         </View>
@@ -109,7 +109,7 @@ function NoteScreen() {
 
       {/* Floating Action Button */}
       <TouchableOpacity
-        className="absolute bottom-6 right-6 w-14 h-14 bg-blue-500 rounded-full justify-center items-center shadow-lg"
+        className="absolute bottom-6 right-6 w-14 h-14 bg-black rounded-full justify-center items-center shadow-lg"
         onPress={() => router.push("/appModels/CreateNote")}
       >
         <Ionicons name="add" size={24} color="white" />

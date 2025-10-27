@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { BSON } from "realm";
+import Realm from "realm"; // ✅ use proper import (fixes warning)
 
 function CreateNoteScreen() {
   const [title, setTitle] = useState("");
@@ -16,7 +16,6 @@ function CreateNoteScreen() {
 
   const isEditMode = !!noteId;
 
-  // Load note data if in edit mode
   useEffect(() => {
     if (isEditMode) {
       const objectId = new Realm.BSON.ObjectId(noteId);
@@ -40,14 +39,10 @@ function CreateNoteScreen() {
     }
 
     if (isEditMode) {
-      // Update existing note
-      const objectId = new BSON.ObjectId(noteId);
-      const note = getNoteById(objectId);
-
+      const objectId = new Realm.BSON.ObjectId(noteId);
       updateNote(objectId, { title, note: content });
       Alert.alert("Success", "Note updated successfully");
     } else {
-      // Create new note
       createNote(title, content);
     }
 
@@ -74,14 +69,14 @@ function CreateNoteScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 px-2 pb-2 bg-white">
       {/* Header */}
-      <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
+      <View className="flex-row justify-between items-center pb-2 border-b border-gray-300 bg-white">
         <TouchableOpacity onPress={handleGoBack} className="p-2">
-          <Ionicons name="close" size={24} color="#333" />
+          <Ionicons name="close" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text className="text-lg font-semibold text-gray-800">
+        <Text className="text-lg font-semibold text-black">
           {isEditMode ? "Edit Note" : "New Note"}
         </Text>
 
@@ -91,7 +86,11 @@ function CreateNoteScreen() {
           className={`p-2 ${!title.trim() || !content.trim() ? "opacity-50" : ""}`}
         >
           <Text
-            className={`font-semibold ${!title.trim() || !content.trim() ? "text-blue-300" : "text-blue-500"}`}
+            className={`font-semibold ${
+              !title.trim() || !content.trim()
+                ? "text-gray-400"
+                : "text-blue-500"
+            }`}
           >
             {isEditMode ? "Update" : "Save"}
           </Text>
@@ -99,9 +98,9 @@ function CreateNoteScreen() {
       </View>
 
       {/* Note Form */}
-      <View className="flex-1 p-4">
+      <View className="flex-1 p-4 bg-white">
         <TextInput
-          className="text-2xl font-bold text-gray-900 mb-4"
+          className="text-2xl font-bold text-black mb-4"
           placeholder="Note title..."
           value={title}
           onChangeText={setTitle}
@@ -109,7 +108,7 @@ function CreateNoteScreen() {
         />
 
         <TextInput
-          className="flex-1 text-base text-gray-700"
+          className="flex-1 text-base text-black"
           placeholder="Start typing your note..."
           value={content}
           onChangeText={setContent}

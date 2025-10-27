@@ -14,8 +14,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-// ✅ TaskItem Component (same as before)
+// ✅ TaskItem Component
 const TaskItem = ({
   item,
   handleStatusChange,
@@ -41,21 +42,21 @@ const TaskItem = ({
   };
 
   const getBgForStatus = (status: string) => {
-    if (status == "todo") return "bg-gray-600";
-    if (status == "in-progress") return "bg-yellow-600";
-    if (status == "done") return "bg-green-600";
-    return "bg-gray-600";
+    if (status === "todo") return "bg-gray-200";
+    if (status === "in-progress") return "bg-yellow-200";
+    if (status === "done") return "bg-green-200";
+    return "bg-gray-100";
   };
 
   return (
-    <Cart className="mb-2 p-3 bg-gray-900 border-2 rounded-xl relative">
+    <Cart className="mb-2 p-3 bg-white border border-gray-300 rounded-xl relative">
       <View className="flex-row justify-between items-start">
         <View className="flex-1">
-          <Text className="text-lg font-semibold text-white">{item.title}</Text>
+          <Text className="text-lg font-semibold text-black">{item.title}</Text>
 
           {item.description && (
             <Text
-              className="mt-1 text-gray-300"
+              className="mt-1 text-gray-700"
               numberOfLines={2}
               ellipsizeMode="tail"
             >
@@ -63,34 +64,34 @@ const TaskItem = ({
             </Text>
           )}
 
-          {/* Show additional task info */}
-          <View className="flex-row flex-wrap mt-2">
+          {/* Additional Info */}
+          <View className="flex-row flex-wrap  gap-2 mt-2">
             {item.priority && item.priority !== "medium" && (
-              <Text
-                className={`text-xs px-2 py-1 rounded-full mr-2 ${
-                  item.priority === "high" ? "bg-red-500" : "bg-green-500"
-                } text-white`}
-              >
-                {item.priority}
-              </Text>
+              <View className="bg-gray-200 rounded-full">
+                <Text className="text-xs  text-black ">{item.priority}</Text>
+              </View>
             )}
             {item.isImportant && (
-              <Text className="text-xs bg-yellow-500 text-white px-2 py-1 rounded-full mr-2">
-                Important
-              </Text>
+              <View className="bg-yellow-200 rounded-full">
+                <Text className="text-xs  text-black  px-1 py-1  ">
+                  Important
+                </Text>
+              </View>
             )}
             {item.category && (
-              <Text className="text-xs bg-blue-500 text-white px-2 py-1 rounded-full">
-                {item.category}
-              </Text>
+              <View className="bg-blue-200 rounded-full">
+                <Text className="text-xs  text-black  px-1 py-1">
+                  {item.category}
+                </Text>
+              </View>
             )}
           </View>
 
-          <Text className="text-xs text-gray-400 mt-1">
+          <Text className="text-xs text-gray-500 mt-1">
             Created: {item.createdAt.toLocaleDateString()}
           </Text>
           {item?.reminderDate && (
-            <Text className="text-xs text-gray-400 mt-1">
+            <Text className="text-xs text-gray-500 mt-1">
               Reminder:{" "}
               {item.reminderDate.toLocaleDateString("en-US", {
                 month: "short",
@@ -105,16 +106,19 @@ const TaskItem = ({
             </Text>
           )}
         </View>
+
         <View className="absolute bottom-2 right-2">
           <Text
-            className={`text-xs ${getBgForStatus(item.status)} text-white px-2 py-1 rounded-full`}
+            className={`text-xs ${getBgForStatus(
+              item.status
+            )} text-black px-2 py-1 rounded-full`}
           >
             {item.status}
           </Text>
         </View>
 
         <TouchableOpacity onPress={toggleActions}>
-          <MaterialIcons name="more-vert" size={22} color="#9CA3AF" />
+          <MaterialIcons name="more-vert" size={22} color="#4B5563" />
         </TouchableOpacity>
       </View>
 
@@ -133,11 +137,9 @@ const TaskItem = ({
               handleStatusChange(item, "todo");
               setShowActions(false);
             }}
-            className={`px-2 py-1 rounded ${
-              item.status === "todo" ? "bg-gray-600" : "bg-gray-400"
-            }`}
+            className="px-2 py-1 bg-gray-200 rounded"
           >
-            <Text className="text-white text-xs">Todo</Text>
+            <Text className="text-black text-xs">Todo</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -145,11 +147,9 @@ const TaskItem = ({
               handleStatusChange(item, "in-progress");
               setShowActions(false);
             }}
-            className={`px-2 py-1 rounded ${
-              item.status === "in-progress" ? "bg-yellow-600" : "bg-yellow-400"
-            }`}
+            className="px-2 py-1 bg-yellow-200 rounded"
           >
-            <Text className="text-white text-xs">In Progress</Text>
+            <Text className="text-black text-xs">In Progress</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -157,11 +157,9 @@ const TaskItem = ({
               handleStatusChange(item, "done");
               setShowActions(false);
             }}
-            className={`px-2 py-1 rounded ${
-              item.status === "done" ? "bg-green-600" : "bg-green-400"
-            }`}
+            className="px-2 py-1 bg-green-200 rounded"
           >
-            <Text className="text-white text-xs">Done</Text>
+            <Text className="text-black text-xs">Done</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -169,9 +167,9 @@ const TaskItem = ({
               handleDeleteTask(item);
               setShowActions(false);
             }}
-            className="px-2 py-1 bg-red-500 rounded"
+            className="px-2 py-1 bg-red-200 rounded"
           >
-            <Text className="text-white text-xs">Delete</Text>
+            <Text className="text-black text-xs">Delete</Text>
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -202,86 +200,65 @@ function HomeScreen() {
   };
 
   const dailyUpdates = [
-    {
-      name: "Total",
-      count: tasks.length,
-      bg: "bg-gray-900",
-      color: "text-white",
-    },
-    {
-      name: "Todo",
-      count: getTasksByStatus("todo").length,
-      bg: "bg-gray-600",
-      color: "text-white",
-    },
-    {
-      name: "In progress",
-      count: getTasksByStatus("in-progress").length,
-      bg: "bg-yellow-500",
-      color: "text-white",
-    },
-    {
-      name: "Done",
-      count: getTasksByStatus("done").length,
-      bg: "bg-green-500",
-      color: "text-white",
-    },
+    { name: "Total", count: tasks.length },
+    { name: "Todo", count: getTasksByStatus("todo").length },
+    { name: "In progress", count: getTasksByStatus("in-progress").length },
+    { name: "Done", count: getTasksByStatus("done").length },
   ];
 
   return (
-    <View className="flex-1 px-1 py-1 bg-gray-200">
+    <SafeAreaView className="flex-1 px-2 pb-2 bg-white">
       {/* Header */}
-      <Cart className="flex-row justify-between items-center mb-2 bg-gray-900 rounded-lg">
-        <Text className="text-2xl font-bold text-white ">
-          My Work Dashboard
-        </Text>
-        <Text className="text-lg text-white  mt-1">
+      <Cart className="flex-row justify-between items-center mb-2 pb-2">
+        <Text className="text-2xl font-bold text-black">My Work Dashboard</Text>
+        <Text className="text-sm text-gray-700 mt-1">
           {user?.displayName || user?.email}
         </Text>
       </Cart>
+
       {/* Stats Overview */}
       <View className="flex-row gap-2 items-center mb-4">
         {dailyUpdates.map((dailyUpdate) => (
           <Cart
             key={dailyUpdate.name}
-            className={`flex-1 h-full ${dailyUpdate.bg} rounded-xl`}
+            className="flex-1 h-full bg-gray-100 rounded-xl p-3 border border-gray-300"
           >
-            <Text className={`text-2xl font-bold ${dailyUpdate.color}`}>
+            <Text className="text-2xl font-bold text-black">
               {dailyUpdate.count}
             </Text>
-            <Text className={`text-lg ${dailyUpdate.color}`}>
-              {dailyUpdate.name}
-            </Text>
+            <Text className="text-sm text-gray-700">{dailyUpdate.name}</Text>
           </Cart>
         ))}
       </View>
+
       <Button
         title=" + Add New Task"
         variant="outline"
         size="lg"
-        className="border-2 border-gray-600"
-        titleClassname="text-gray-800"
+        className="border border-gray-400 bg-white"
+        titleClassname="text-black"
         onPress={() => router.push("../appModels/add-task")}
-      ></Button>
+      />
+
       {/* Tasks List */}
-      <Cart className="flex-1 p-3 ">
-        <Text className="text-xl font-bold mb-3">
+      <Cart className="flex-1 p-3 bg-gray-50 border border-gray-300 mt-3 rounded-xl">
+        <Text className="text-xl font-bold mb-3 text-black">
           My Tasks ({tasks.length})
         </Text>
 
         {tasks.length === 0 ? (
           <View className="flex-1 justify-center items-center py-8">
-            <Text className="text-gray-600 text-center text-lg mb-4">
+            <Text className="text-gray-500 text-center text-lg mb-4">
               No tasks yet
             </Text>
             <Button
               title=" + Add New Task"
               variant="outline"
               size="lg"
-              className="border-2 border-gray-600"
-              titleClassname="text-gray-800"
+              className="border border-gray-400 bg-white"
+              titleClassname="text-black"
               onPress={() => router.push("../appModels/add-task")}
-            ></Button>
+            />
           </View>
         ) : (
           <FlatList
@@ -298,7 +275,7 @@ function HomeScreen() {
           />
         )}
       </Cart>
-    </View>
+    </SafeAreaView>
   );
 }
 

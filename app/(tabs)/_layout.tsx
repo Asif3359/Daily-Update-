@@ -26,7 +26,7 @@ function TabLayout() {
         options={{
           title: "Note",
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="note" size={size} color={color} />
+            <MaterialIcons name="notes" size={size} color={color} />
           ),
         }}
       />
