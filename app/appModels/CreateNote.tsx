@@ -1,20 +1,26 @@
 import { useNotes } from "@/hooks/useNotes";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  actions,
+  RichEditor,
+  RichToolbar,
+} from "react-native-pell-rich-editor";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Realm from "realm"; // ✅ use proper import (fixes warning)
+import Realm from "realm";
 
-function CreateNoteScreen() {
+export default function CreateNoteScreen() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const { createNote, getNoteById, updateNote } = useNotes();
   const router = useRouter();
   const params = useLocalSearchParams();
   const noteId = params.noteId as string;
-
   const isEditMode = !!noteId;
+
+  const richText = useRef<RichEditor>(null);
 
   useEffect(() => {
     if (isEditMode) {
@@ -22,7 +28,7 @@ function CreateNoteScreen() {
       const note = getNoteById(objectId);
       if (note) {
         setTitle(note.title);
-        setContent(note.note);
+        setContent(note.note); // HTML content
       }
     }
   }, [isEditMode, noteId]);
@@ -32,7 +38,6 @@ function CreateNoteScreen() {
       Alert.alert("Error", "Please enter a title for your note");
       return;
     }
-
     if (!content.trim()) {
       Alert.alert("Error", "Please enter some content for your note");
       return;
@@ -69,7 +74,7 @@ function CreateNoteScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 px-2 pb-2 bg-white">
+    <SafeAreaView className="flex-1 bg-white px-2 pb-2">
       {/* Header */}
       <View className="flex-row justify-between items-center pb-2 border-b border-gray-300 bg-white">
         <TouchableOpacity onPress={handleGoBack} className="p-2">
@@ -97,28 +102,47 @@ function CreateNoteScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Note Form */}
-      <View className="flex-1 p-4 bg-white">
-        <TextInput
-          className="text-2xl font-bold text-black mb-4"
-          placeholder="Note title..."
-          value={title}
-          onChangeText={setTitle}
-          placeholderTextColor="#9ca3af"
-        />
+      {/* Title Input */}
+      <TextInput
+        className="text-2xl font-bold text-black mb-2"
+        placeholder="Note title..."
+        value={title}
+        onChangeText={setTitle}
+        placeholderTextColor="#9ca3af"
+      />
 
-        <TextInput
-          className="flex-1 text-base text-black"
-          placeholder="Start typing your note..."
-          value={content}
-          onChangeText={setContent}
-          multiline
-          textAlignVertical="top"
-          placeholderTextColor="#9ca3af"
-        />
-      </View>
+      <RichEditor
+        ref={richText}
+        initialContentHTML={content}
+        onChange={setContent}
+        style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}
+        editorStyle={{
+          backgroundColor: "#fff",
+          color: "#000",
+          placeholderColor: "#9ca3af",
+        }}
+        placeholder="Start typing your note..."
+      />
+      {/* Rich Text Editor */}
+      <RichToolbar
+        editor={richText}
+        actions={[
+          actions.setBold,
+          actions.setItalic,
+          actions.setUnderline,
+          actions.insertBulletsList,
+          actions.insertOrderedList,
+        ]}
+        iconTint="black"
+        selectedIconTint="blue"
+        style={{
+          backgroundColor: "#fff",
+          borderBottomWidth: 1,
+          borderBottomColor: "#ccc",
+        }}
+      />
     </SafeAreaView>
   );
 }
 
-export default CreateNoteScreen;
+export { CreateNoteScreen };

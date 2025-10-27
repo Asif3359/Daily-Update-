@@ -4,7 +4,15 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { router } from "expo-router";
 import React from "react";
-import { Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import RenderHtml from "react-native-render-html";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type RootStackParamList = {
@@ -40,6 +48,7 @@ function NoteScreen() {
       year: "numeric",
     });
   };
+  const { width } = useWindowDimensions();
 
   const renderNoteItem = ({ item }: { item: any }) => (
     <TouchableOpacity
@@ -66,9 +75,22 @@ function NoteScreen() {
           <Ionicons name="trash-outline" size={18} color="#000" />
         </TouchableOpacity>
       </View>
-      <Text className="text-black/70 text-sm mb-3" numberOfLines={3}>
-        {item.note}
-      </Text>
+
+      {/* Render HTML content */}
+      <View style={{ maxHeight: 100, overflow: "hidden", marginBottom: 8 }}>
+        <RenderHtml
+          contentWidth={width - 32} // adjust for padding
+          source={{ html: item.note }}
+          baseStyle={{ color: "#000", fontSize: 14, lineHeight: 20 }}
+          tagsStyles={{
+            b: { fontWeight: "bold" },
+            i: { fontStyle: "italic" },
+            ul: { paddingLeft: 16, marginVertical: 4 },
+            li: { marginBottom: 2 },
+          }}
+        />
+      </View>
+
       <Text className="text-black/50 text-xs">
         {formatDate(item.updatedAt)}
       </Text>
