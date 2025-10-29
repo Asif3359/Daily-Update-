@@ -1,5 +1,6 @@
 import Button from "@/Components/Common/Button";
 import Cart from "@/Components/Common/Cart";
+import { useSyncNotes } from "@/hooks/useSyncNotes";
 import { useTasks } from "@/hooks/useTasks";
 import { Task } from "@/models/Task";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -77,7 +78,9 @@ const TaskItem = ({
           <View className="flex-row flex-wrap  gap-2 mt-2">
             {item.priority && item.priority !== "medium" && (
               <View className="bg-gray-200 rounded-full">
-                <Text className="text-xs  text-black px-1 py-1">{item.priority}</Text>
+                <Text className="text-xs  text-black px-1 py-1">
+                  {item.priority}
+                </Text>
               </View>
             )}
             {item.isImportant && (
@@ -193,6 +196,16 @@ function HomeScreen() {
   const user = auth.currentUser;
   const router = useRouter();
   const { tasks, updateTaskStatus, deleteTask, getTasksByStatus } = useTasks();
+  const { syncNotes, isSyncing, lastSync } = useSyncNotes();
+
+  const handleSync = async () => {
+    const result = await syncNotes(user?.email || "");
+    if (result.success) {
+      console.log(`Synced ${result.syncedCount} notes`);
+    } else {
+      alert("Sync failed: " + result.error);
+    }
+  };
 
   const handleStatusChange = (
     task: Task,
@@ -222,10 +235,18 @@ function HomeScreen() {
       {/* Header */}
       <Cart className="flex-row justify-between items-center mb-2 pb-2">
         <Text className="text-2xl font-bold text-black">My Work Dashboard</Text>
-        <Text className="text-sm text-gray-700 mt-1">
-          {user?.displayName || user?.email}
-        </Text>
+        <View className="flex-row gap-2 items-center justify-between">
+          <Text className="text-sm text-gray-700 mt-1">
+            {user?.displayName || user?.email}
+          </Text>
+          <TouchableOpacity onPress={handleSync} disabled={isSyncing}>
+            <MaterialIcons name="sync" size={20} color="black"></MaterialIcons>
+          </TouchableOpacity>
+        </View>
       </Cart>
+      <View className="my-2">
+        <Text>Last sync: {lastSync ? lastSync.toLocaleString() : "Never"}</Text>
+      </View>
 
       {/* Stats Overview */}
       <View className="flex-row gap-2 items-center mb-4">

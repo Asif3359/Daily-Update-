@@ -1,8 +1,10 @@
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { useNotes } from "@/hooks/useNotes";
+import { useSyncNotes } from "@/hooks/useSyncNotes";
 import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "@react-native-firebase/auth";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import {
   actions,
@@ -16,6 +18,8 @@ export default function CreateNoteScreen() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const { createNote, getNoteById, updateNote } = useNotes();
+  const { syncNotes } = useSyncNotes();
+  const isOnline = useNetworkStatus();
   const router = useRouter();
   const params = useLocalSearchParams();
   const noteId = params.noteId as string;
@@ -26,6 +30,36 @@ export default function CreateNoteScreen() {
 
   const richText = useRef<RichEditor>(null);
 
+  // Hoisted/memoized styles and actions to avoid new references each render
+  const editorStyle = useMemo(
+    () => ({
+      backgroundColor: "#fff",
+      color: "#000",
+      placeholderColor: "#9ca3af",
+    }),
+    []
+  );
+
+  const toolbarActions = useMemo(
+    () => [
+      actions.setBold,
+      actions.setItalic,
+      actions.setUnderline,
+      actions.insertBulletsList,
+      actions.insertOrderedList,
+    ],
+    []
+  );
+
+  const toolbarStyle = useMemo(
+    () => ({
+      backgroundColor: "#fff",
+      borderBottomWidth: 1,
+      borderBottomColor: "#ccc",
+    }),
+    []
+  );
+
   useEffect(() => {
     if (isEditMode) {
       const objectId = new Realm.BSON.ObjectId(noteId);
@@ -35,9 +69,9 @@ export default function CreateNoteScreen() {
         setContent(note.note); // HTML content
       }
     }
-  }, [isEditMode, noteId]);
+  }, [isEditMode, noteId, getNoteById]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim()) {
       Alert.alert("Error", "Please enter a title for your note");
       return;
@@ -50,9 +84,20 @@ export default function CreateNoteScreen() {
     if (isEditMode) {
       const objectId = new Realm.BSON.ObjectId(noteId);
       updateNote(objectId, { title, note: content });
-      Alert.alert("Success", "Note updated successfully");
+
+      if (isOnline) {
+        await syncNotes(user?.email || "");
+      } else {
+        console.log("OFFLINE");
+      }
     } else {
       createNote(title, content, user?.email || "");
+
+      if (isOnline) {
+        await syncNotes(user?.email || "");
+      } else {
+        console.log("OFFLINE");
+      }
     }
 
     router.back();
@@ -120,30 +165,16 @@ export default function CreateNoteScreen() {
         initialContentHTML={content}
         onChange={setContent}
         style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}
-        editorStyle={{
-          backgroundColor: "#fff",
-          color: "#000",
-          placeholderColor: "#9ca3af",
-        }}
+        editorStyle={editorStyle}
         placeholder="Start typing your note..."
       />
       {/* Rich Text Editor */}
       <RichToolbar
         editor={richText}
-        actions={[
-          actions.setBold,
-          actions.setItalic,
-          actions.setUnderline,
-          actions.insertBulletsList,
-          actions.insertOrderedList,
-        ]}
+        actions={toolbarActions}
         iconTint="black"
         selectedIconTint="blue"
-        style={{
-          backgroundColor: "#fff",
-          borderBottomWidth: 1,
-          borderBottomColor: "#ccc",
-        }}
+        style={toolbarStyle}
       />
     </SafeAreaView>
   );

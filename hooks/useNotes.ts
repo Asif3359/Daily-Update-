@@ -43,6 +43,19 @@ export function useNotes() {
             realm.write(() => {
                 if (updates.title !== undefined) note.title = updates.title;
                 if (updates.note !== undefined) note.note = updates.note;
+                note.syncStatus = 0;
+                note.updatedAt = new Date();
+            });
+            return true;
+        }
+        return false;
+    }, [realm]);
+
+    const updateNoteSyncStatus = useCallback((noteId: Realm.BSON.ObjectId, syncStatus: number) => {
+        const note = realm.objectForPrimaryKey(Note, noteId);
+        if (note) {
+            realm.write(() => {
+                note.syncStatus = syncStatus;
                 note.updatedAt = new Date();
             });
             return true;
@@ -67,5 +80,6 @@ export function useNotes() {
         getNoteById,
         deleteNote,
         updateNote,
+        updateNoteSyncStatus,
     };
 }

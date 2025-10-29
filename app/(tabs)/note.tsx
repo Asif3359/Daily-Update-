@@ -1,7 +1,7 @@
 import { useNotes } from "@/hooks/useNotes";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   Alert,
   FlatList,
@@ -13,11 +13,81 @@ import {
 import RenderHtml from "react-native-render-html";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+// Hoisted constants to avoid new object/array references on each render
+const TAGS_STYLES = {
+  b: { fontWeight: "bold" },
+  i: { fontStyle: "italic" },
+  ul: { paddingLeft: 16, marginVertical: 4 },
+  li: { marginBottom: 2 },
+} as const;
+
+const BASE_STYLE = { color: "#000", fontSize: 14, lineHeight: 20 } as const;
+
+type NoteItemType = {
+  _id: Realm.BSON.ObjectId;
+  title: string;
+  note: string;
+  updatedAt: Date;
+  userEmail?: string;
+};
+
+const NoteCard = React.memo(function NoteCard({
+  item,
+  width,
+  onPress,
+  onLongPress,
+  onDelete,
+  formatDate,
+}: {
+  item: NoteItemType;
+  width: number;
+  onPress: () => void;
+  onLongPress: () => void;
+  onDelete: () => void;
+  formatDate: (d: Date) => string;
+}) {
+  const contentWidth = useMemo(() => width - 32, [width]);
+  const source = useMemo(() => ({ html: item.note }), [item.note]);
+
+  return (
+    <TouchableOpacity
+      className="bg-white rounded-lg p-4 mb-3 mx-2 shadow-sm border border-gray-200"
+      onPress={onPress}
+      onLongPress={onLongPress}
+    >
+      <View className="flex-row justify-between items-start mb-2">
+        <Text
+          className="text-lg font-semibold text-black flex-1 mr-2"
+          numberOfLines={2}
+        >
+          {item.title}
+        </Text>
+        <TouchableOpacity onPress={onDelete} className="p-1">
+          <Ionicons name="trash-outline" size={18} color="#000" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Render HTML content */}
+      <View style={{ maxHeight: 100, overflow: "hidden", marginBottom: 8 }}>
+        <RenderHtml
+          contentWidth={contentWidth}
+          source={source}
+          baseStyle={BASE_STYLE}
+          tagsStyles={TAGS_STYLES}
+        />
+      </View>
+
+      <Text className="text-black/50 text-xs">{formatDate(item.updatedAt)}</Text>
+      <Text className="text-xs">{item?.userEmail}</Text>
+    </TouchableOpacity>
+  );
+});
+
 function NoteScreen() {
   const { notes, deleteNote } = useNotes();
   const router = useRouter();
 
-  const handleDeleteNote = (noteId: Realm.BSON.ObjectId, noteTitle: string) => {
+  const handleDeleteNote = useCallback((noteId: Realm.BSON.ObjectId, noteTitle: string) => {
     Alert.alert(
       "Delete Note",
       `Are you sure you want to delete "${noteTitle}"?`,
@@ -30,7 +100,7 @@ function NoteScreen() {
         },
       ]
     );
-  };
+  }, [deleteNote]);
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -41,52 +111,23 @@ function NoteScreen() {
   };
   const { width } = useWindowDimensions();
 
-  const renderNoteItem = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      className="bg-white rounded-lg p-4 mb-3 mx-2 shadow-sm border border-gray-200"
-      onPress={() =>
-        router.push({
-          pathname: "/appModels/CreateNote",
-          params: { noteId: item._id.toString() },
-        })
-      }
-      onLongPress={() => handleDeleteNote(item._id, item.title)}
-    >
-      <View className="flex-row justify-between items-start mb-2">
-        <Text
-          className="text-lg font-semibold text-black flex-1 mr-2"
-          numberOfLines={2}
-        >
-          {item.title}
-        </Text>
-        <TouchableOpacity
-          onPress={() => handleDeleteNote(item._id, item.title)}
-          className="p-1"
-        >
-          <Ionicons name="trash-outline" size={18} color="#000" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Render HTML content */}
-      <View style={{ maxHeight: 100, overflow: "hidden", marginBottom: 8 }}>
-        <RenderHtml
-          contentWidth={width - 32} // adjust for padding
-          source={{ html: item.note }}
-          baseStyle={{ color: "#000", fontSize: 14, lineHeight: 20 }}
-          tagsStyles={{
-            b: { fontWeight: "bold" },
-            i: { fontStyle: "italic" },
-            ul: { paddingLeft: 16, marginVertical: 4 },
-            li: { marginBottom: 2 },
-          }}
-        />
-      </View>
-
-      <Text className="text-black/50 text-xs">
-        {formatDate(item.updatedAt)}
-      </Text>
-      <Text className="text-xs">{item?.userEmail}</Text>
-    </TouchableOpacity>
+  const renderNoteItem = useCallback(
+    ({ item }: { item: NoteItemType }) => (
+      <NoteCard
+        item={item}
+        width={width}
+        onPress={() =>
+          router.push({
+            pathname: "/appModels/CreateNote",
+            params: { noteId: item._id.toString() },
+          })
+        }
+        onLongPress={() => handleDeleteNote(item._id, item.title)}
+        onDelete={() => handleDeleteNote(item._id, item.title)}
+        formatDate={formatDate}
+      />
+    ),
+    [width, router, handleDeleteNote]
   );
 
   return (
