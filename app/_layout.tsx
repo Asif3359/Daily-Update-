@@ -1,7 +1,8 @@
 import { RealmProvider } from "@/providers/RealmProvider";
+import { initializeNotifications } from "@/utils/notifications";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Stack } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import "react-native-get-random-values";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import "./globals.css";
@@ -13,6 +14,9 @@ GoogleSignin.configure({
 });
 
 export default function RootLayout() {
+  useEffect(() => {
+    initializeNotifications();
+  }, []);
   return (
     <RealmProvider>
       <SafeAreaProvider>

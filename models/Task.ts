@@ -8,6 +8,7 @@ export class Task extends Realm.Object<Task> {
     priority!: 'low' | 'medium' | 'high';
     dueDate?: Date;
     reminderDate?: Date; // New: When to remind the user
+    notificationId?: string; // New: local notification id for reminder
     createdAt!: Date;
     updatedAt!: Date;
     completedAt?: Date;
@@ -42,6 +43,7 @@ export class Task extends Realm.Object<Task> {
             priority,
             dueDate,
             reminderDate, // New: included in generation
+            notificationId: undefined,
             createdAt: new Date(),
             updatedAt: new Date(),
             completedAt: status === 'done' ? new Date() : undefined,
@@ -67,6 +69,7 @@ export class Task extends Realm.Object<Task> {
             priority: 'string',
             dueDate: 'date?',
             reminderDate: 'date?', // New: added to schema
+            notificationId: 'string?', // New: store scheduled notification id to cancel/reschedule
             createdAt: 'date',
             updatedAt: 'date',
             completedAt: 'date?',

@@ -1,4 +1,5 @@
 import { Task } from '@/models/Task';
+import { cancelTaskReminder, scheduleTaskReminder } from '@/utils/notifications';
 import { useQuery, useRealm } from '@realm/react';
 import { useCallback } from 'react';
 
@@ -19,9 +20,9 @@ export function useTasks() {
         estimatedTime?: number,
 
     ) => {
-        let taskId: Realm.BSON.ObjectId | null = null;
+        let createdTask: any | null = null;
         realm.write(() => {
-            realm.create('Task', Task.generate(
+            createdTask = realm.create('Task', Task.generate(
                 title,
                 userEmail,
                 description,
@@ -36,6 +37,25 @@ export function useTasks() {
 
             ));
         });
+
+        if (createdTask && reminderDate && reminderDate.getTime() > Date.now()) {
+            const id = `task-${createdTask._id.toHexString()}`;
+            const notifId = await scheduleTaskReminder({
+                id,
+                title: 'Task Reminder',
+                body: createdTask.title,
+                fireDate: reminderDate,
+                payload: { taskId: createdTask._id.toHexString() },
+            });
+            if (notifId) {
+                realm.write(() => {
+                    const t = realm.objectForPrimaryKey(Task, createdTask!._id);
+                    if (t) {
+                        (t as any).notificationId = notifId;
+                    }
+                });
+            }
+        }
     }, [realm]);
 
     const updateTaskStatus = useCallback(async (taskId: Realm.BSON.ObjectId, status: 'todo' | 'in-progress' | 'done') => {
@@ -55,6 +75,9 @@ export function useTasks() {
     const updateTask = useCallback(async (taskId: Realm.BSON.ObjectId, updates: Partial<Task>) => {
         const task = realm.objectForPrimaryKey(Task, taskId);
         if (task) {
+            const nextReminder = (updates as any).reminderDate as Date | null | undefined;
+            const hasReminderChange = Object.prototype.hasOwnProperty.call(updates, 'reminderDate');
+
             realm.write(() => {
                 Object.keys(updates).forEach(key => {
                     if (key in task && key !== '_id') {
@@ -63,13 +86,45 @@ export function useTasks() {
                 });
                 task.updatedAt = new Date();
             });
+
+            if (hasReminderChange) {
+                if ((task as any).notificationId) {
+                    await cancelTaskReminder((task as any).notificationId);
+                }
+
+                if (nextReminder && nextReminder.getTime() > Date.now()) {
+                    const id = `task-${task._id.toHexString()}`;
+                    const notifId = await scheduleTaskReminder({
+                        id,
+                        title: 'Task Reminder',
+                        body: task.title,
+                        fireDate: nextReminder,
+                        payload: { taskId: task._id.toHexString() },
+                    });
+                    realm.write(() => {
+                        const t = realm.objectForPrimaryKey(Task, taskId);
+                        if (t) {
+                            (t as any).notificationId = notifId || null as any;
+                        }
+                    });
+                } else {
+                    realm.write(() => {
+                        const t = realm.objectForPrimaryKey(Task, taskId);
+                        if (t) {
+                            (t as any).notificationId = null as any;
+                        }
+                    });
+                }
+            }
         }
     }, [realm]);
 
     const deleteTask = useCallback(async (taskId: Realm.BSON.ObjectId) => {
         const task = realm.objectForPrimaryKey(Task, taskId);
         if (task) {
-
+            if ((task as any).notificationId) {
+                await cancelTaskReminder((task as any).notificationId);
+            }
             realm.write(() => {
                 realm.delete(task);
             });

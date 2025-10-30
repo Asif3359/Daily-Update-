@@ -21,7 +21,7 @@ interface ServerNote {
 }
 
 export function useSyncNotes() {
-    const { notes, createNote, updateNoteSyncStatus, updateNote } = useNotes();
+    const { notes, createNoteFromServer, applyServerUpdate, updateNoteSyncStatus } = useNotes();
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSync, setLastSync] = useState<Date | null>(null);
 
@@ -85,24 +85,23 @@ export function useSyncNotes() {
                     // Update existing note if server version is newer
                     const serverUpdated = new Date(serverNote.updatedAt);
                     if (serverUpdated > existingNote.updatedAt) {
-                        updateNote(
-                            existingNote._id,
-                            {
-                                title: serverNote.title,
-                                note: serverNote.note,
-                            }
-                        );
-                        updateNoteSyncStatus(existingNote._id, 1);
+                        applyServerUpdate(existingNote._id, {
+                            title: serverNote.title,
+                            note: serverNote.note,
+                            updatedAt: serverNote.updatedAt,
+                        });
                         pulledCount++;
                     }
                 } else {
-                    // Create new note from server
-                    createNote(
-                        serverNote.title,
-                        serverNote.note,
-                        serverNote.userEmail
-                    );
-                    // Note: The created note will have syncStatus = 1 since it came from server
+                    // Create new note from server, preserving server _id and timestamps
+                    createNoteFromServer({
+                        _id: serverNote._id,
+                        title: serverNote.title,
+                        note: serverNote.note,
+                        userEmail: serverNote.userEmail,
+                        createdAt: serverNote.createdAt,
+                        updatedAt: serverNote.updatedAt,
+                    });
                     pulledCount++;
                 }
             }
