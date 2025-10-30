@@ -128,3 +128,25 @@ export const handleLogout = async () => {
     console.log("User signed out!");
   });
 };
+
+export const updateUserProfile = async (
+  newDisplayName: string, 
+  setError?: (error: string) => void, 
+  setSuccess?: (msg: string) => void,
+  setIsLoading?: (loading: boolean) => void
+) => {
+  try {
+    if (setIsLoading) setIsLoading(true);
+    const user = getAuth().currentUser;
+    if (!user) {
+      throw new Error("No user currently logged in");
+    }
+    await updateProfile(user, { displayName: newDisplayName });
+    if (setSuccess) setSuccess("Profile updated");
+  } catch (err: any) {
+    setError && setError(err.message || "Something went wrong");
+    console.error("Profile update failed", err);
+  } finally {
+    setIsLoading && setIsLoading(false);
+  }
+};
