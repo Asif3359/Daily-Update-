@@ -6,6 +6,7 @@ import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Image, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const myIcon = require("../../assets/images/icon.png");
 
@@ -19,7 +20,7 @@ function LoginScreen() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   return (
-    <View className="flex-1 justify-center px-3 bg-base">
+    <SafeAreaView className="flex-1 justify-center px-3 bg-base">
       <View className="flex-row justify-center items-center mb-10">
         <Image className="w-40 h-40 rounded-full" source={myIcon} />
       </View>
@@ -139,7 +140,7 @@ function LoginScreen() {
           variant="outline"
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
