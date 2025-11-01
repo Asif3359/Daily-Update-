@@ -1,12 +1,14 @@
 import Button from "@/Components/Common/Button";
-import Cart from "@/Components/Common/Cart";
 import { useTasks } from "@/hooks/useTasks";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -37,9 +39,7 @@ export default function AddTaskScreen() {
   useEffect(() => {
     if (isEditMode && taskId) {
       try {
-        // Convert string to ObjectId
         const objectId = new Realm.BSON.ObjectId(taskId);
-
         const task = getTaskById(objectId);
         if (task) {
           setTitle(task.title);
@@ -100,10 +100,7 @@ export default function AddTaskScreen() {
     }
 
     try {
-      // Convert string to ObjectId for update
-
       const objectId = new Realm.BSON.ObjectId(taskId);
-
       const updates = {
         title: title.trim(),
         description: description.trim(),
@@ -157,9 +154,9 @@ export default function AddTaskScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 px-2 pb-2 bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center gap-2 pb-2">
+      <View className="flex-row items-center gap-2 px-4 py-2">
         <TouchableOpacity onPress={handleGoBack} className="mr-4">
           <MaterialIcons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
@@ -171,174 +168,202 @@ export default function AddTaskScreen() {
         </Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <Cart className="p-4 mb-4 bg-white rounded-xl shadow-sm">
-          {/* Task Title */}
-          <Text className="text-lg font-semibold text-black mb-2">Title *</Text>
-          <TextInput
-            className="bg-gray-100 text-black p-3 rounded mb-4 border border-gray-300"
-            placeholder="Enter task title"
-            placeholderTextColor="#6B7280"
-            value={title}
-            onChangeText={setTitle}
-          />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardAvoidingView}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="p-4 bg-white">
+            {/* Task Title */}
+            <Text className="text-lg font-semibold text-black mb-2">
+              Title *
+            </Text>
+            <TextInput
+              className="bg-gray-100 text-black p-3 rounded mb-4 border border-gray-300"
+              placeholder="Enter task title"
+              placeholderTextColor="#6B7280"
+              value={title}
+              onChangeText={setTitle}
+              returnKeyType="next"
+            />
 
-          {/* Description */}
-          <Text className="text-lg font-semibold text-black mb-2">
-            Description
-          </Text>
-          <TextInput
-            className="bg-gray-100 text-black p-3 rounded mb-4 min-h-[100px] border border-gray-300"
-            placeholder="Enter task description"
-            placeholderTextColor="#6B7280"
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            textAlignVertical="top"
-          />
+            {/* Description */}
+            <Text className="text-lg font-semibold text-black mb-2">
+              Description
+            </Text>
+            <TextInput
+              className="bg-gray-100 text-black p-3 rounded mb-4 min-h-[100px] border border-gray-300"
+              placeholder="Enter task description"
+              placeholderTextColor="#6B7280"
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              textAlignVertical="top"
+              returnKeyType="next"
+            />
 
-          {/* Priority */}
-          <Text className="text-lg font-semibold text-black mb-2">
-            Priority
-          </Text>
-          <View className="flex-row justify-between mb-4">
-            {(["low", "medium", "high"] as const).map((level) => (
-              <TouchableOpacity
-                key={level}
-                onPress={() => setPriority(level)}
-                className={`flex-1 mx-1 p-3 rounded ${
-                  priority === level
-                    ? level === "low"
-                      ? "bg-green-500"
-                      : level === "medium"
-                        ? "bg-yellow-400"
-                        : "bg-red-500"
-                    : "bg-gray-200"
-                }`}
-              >
-                <Text
-                  className={`text-center font-semibold capitalize ${
-                    priority === level ? "text-white" : "text-black"
+            {/* Priority */}
+            <Text className="text-lg font-semibold text-black mb-2">
+              Priority
+            </Text>
+            <View className="flex-row justify-between mb-4">
+              {(["low", "medium", "high"] as const).map((level) => (
+                <TouchableOpacity
+                  key={level}
+                  onPress={() => setPriority(level)}
+                  className={`flex-1 mx-1 p-3 rounded ${
+                    priority === level
+                      ? level === "low"
+                        ? "bg-green-500"
+                        : level === "medium"
+                          ? "bg-yellow-400"
+                          : "bg-red-500"
+                      : "bg-gray-200"
                   }`}
                 >
-                  {level}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+                  <Text
+                    className={`text-center font-semibold capitalize ${
+                      priority === level ? "text-white" : "text-black"
+                    }`}
+                  >
+                    {level}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-          {/* Important Toggle */}
-          <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-lg font-semibold text-black">Important</Text>
-            <TouchableOpacity
-              onPress={() => setIsImportant(!isImportant)}
-              className={`w-12 h-6 rounded-full ${
-                isImportant ? "bg-gray-900" : "bg-gray-300"
-              }`}
-            >
-              <View
-                className={`w-6 h-6 rounded-full bg-white ${
-                  isImportant ? "ml-6" : "ml-0"
+            {/* Important Toggle */}
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-lg font-semibold text-black">
+                Important
+              </Text>
+              <TouchableOpacity
+                onPress={() => setIsImportant(!isImportant)}
+                className={`w-12 h-6 rounded-full ${
+                  isImportant ? "bg-gray-900" : "bg-gray-300"
                 }`}
-              />
+              >
+                <View
+                  className={`w-6 h-6 rounded-full bg-white ${
+                    isImportant ? "ml-6" : "ml-0"
+                  }`}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Due Date */}
+            <Text className="text-lg font-semibold text-black mb-2">
+              Due Date
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowDueDatePicker(true)}
+              className="bg-gray-100 p-3 rounded mb-4 border border-gray-300"
+            >
+              <Text className="text-black">
+                {dueDate ? dueDate.toLocaleDateString() : "Select due date"}
+              </Text>
             </TouchableOpacity>
+
+            <DatePicker
+              modal
+              open={showDueDatePicker}
+              date={dueDate || new Date()}
+              onConfirm={(date) => {
+                setShowDueDatePicker(false);
+                setDueDate(date);
+              }}
+              onCancel={() => {
+                setShowDueDatePicker(false);
+              }}
+            />
+
+            {/* Reminder Date */}
+            <Text className="text-lg font-semibold text-black mb-2">
+              Reminder Date
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowReminderPicker(true)}
+              className="bg-gray-100 p-4 rounded-lg mb-4 flex-row justify-between items-center border border-gray-300"
+            >
+              <Text className="text-black text-base">
+                {reminderDate
+                  ? reminderDate.toLocaleString()
+                  : "Select reminder date and time"}
+              </Text>
+              <MaterialIcons name="notifications" size={20} color="#6B7280" />
+            </TouchableOpacity>
+
+            <DatePicker
+              modal
+              open={showReminderPicker}
+              date={reminderDate || new Date()}
+              mode="datetime"
+              onConfirm={(date) => {
+                setShowReminderPicker(false);
+                setReminderDate(date);
+              }}
+              onCancel={() => {
+                setShowReminderPicker(false);
+              }}
+            />
+
+            {/* Category */}
+            <Text className="text-lg font-semibold text-black mb-2">
+              Category
+            </Text>
+            <TextInput
+              className="bg-gray-100 text-black p-3 rounded mb-4 border border-gray-300"
+              placeholder="e.g., Work, Personal, Shopping"
+              placeholderTextColor="#6B7280"
+              value={category}
+              onChangeText={setCategory}
+              returnKeyType="next"
+            />
+
+            {/* Estimated Time */}
+            <Text className="text-lg font-semibold text-black mb-2">
+              Estimated Time (minutes)
+            </Text>
+            <TextInput
+              className="bg-gray-100 text-black p-3 rounded mb-6 border border-gray-300"
+              placeholder="e.g., 30"
+              placeholderTextColor="#6B7280"
+              value={estimatedTime}
+              onChangeText={setEstimatedTime}
+              keyboardType="numeric"
+              returnKeyType="done"
+            />
+
+            {/* Save/Update Button */}
+            <Button
+              title={isEditMode ? "Update Task" : "Add Task"}
+              variant="outline"
+              size="lg"
+              className="border-2 border-gray-600 bg-white mb-4"
+              titleClassname="text-black font-semibold"
+              onPress={handleSave}
+              disabled={!title.trim()}
+            />
           </View>
-
-          {/* Due Date */}
-          <Text className="text-lg font-semibold text-black mb-2">
-            Due Date
-          </Text>
-          <TouchableOpacity
-            onPress={() => setShowDueDatePicker(true)}
-            className="bg-gray-100 p-3 rounded mb-4 border border-gray-300"
-          >
-            <Text className="text-black">
-              {dueDate ? dueDate.toLocaleDateString() : "Select due date"}
-            </Text>
-          </TouchableOpacity>
-
-          <DatePicker
-            modal
-            open={showDueDatePicker}
-            date={dueDate || new Date()}
-            onConfirm={(date) => {
-              setShowDueDatePicker(false);
-              setDueDate(date);
-            }}
-            onCancel={() => {
-              setShowDueDatePicker(false);
-            }}
-          />
-
-          {/* Reminder Date */}
-          <Text className="text-lg font-semibold text-black mb-2">
-            Reminder Date
-          </Text>
-          <TouchableOpacity
-            onPress={() => setShowReminderPicker(true)}
-            className="bg-gray-100 p-4 rounded-lg mb-4 flex-row justify-between items-center border border-gray-300"
-          >
-            <Text className="text-black text-base">
-              {reminderDate
-                ? reminderDate.toLocaleString()
-                : "Select reminder date and time"}
-            </Text>
-            <MaterialIcons name="notifications" size={20} color="#6B7280" />
-          </TouchableOpacity>
-
-          <DatePicker
-            modal
-            open={showReminderPicker}
-            date={reminderDate || new Date()}
-            mode="datetime"
-            onConfirm={(date) => {
-              setShowReminderPicker(false);
-              setReminderDate(date);
-            }}
-            onCancel={() => {
-              setShowReminderPicker(false);
-            }}
-          />
-
-          {/* Category */}
-          <Text className="text-lg font-semibold text-black mb-2">
-            Category
-          </Text>
-          <TextInput
-            className="bg-gray-100 text-black p-3 rounded mb-4 border border-gray-300"
-            placeholder="e.g., Work, Personal, Shopping"
-            placeholderTextColor="#6B7280"
-            value={category}
-            onChangeText={setCategory}
-          />
-
-          {/* Estimated Time */}
-          <Text className="text-lg font-semibold text-black mb-2">
-            Estimated Time (minutes)
-          </Text>
-          <TextInput
-            className="bg-gray-100 text-black p-3 rounded mb-6 border border-gray-300"
-            placeholder="e.g., 30"
-            placeholderTextColor="#6B7280"
-            value={estimatedTime}
-            onChangeText={setEstimatedTime}
-            keyboardType="numeric"
-          />
-
-          {/* Save/Update Button */}
-          <Button
-            title={isEditMode ? "Update Task" : "Add Task"}
-            variant="outline"
-            size="lg"
-            className="border-2 border-gray-600 bg-white"
-            titleClassname="text-black font-semibold"
-            onPress={handleSave}
-            disabled={!title.trim()}
-          />
-        </Cart>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20, // Add some bottom padding
+  },
+});
 
 export { AddTaskScreen };

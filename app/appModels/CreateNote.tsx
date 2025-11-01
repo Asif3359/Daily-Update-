@@ -5,7 +5,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "@react-native-firebase/auth";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import {
   actions,
   RichEditor,
@@ -54,8 +63,6 @@ export default function CreateNoteScreen() {
   const toolbarStyle = useMemo(
     () => ({
       backgroundColor: "#fff",
-      borderBottomWidth: 1,
-      borderBottomColor: "#ccc",
     }),
     []
   );
@@ -123,7 +130,7 @@ export default function CreateNoteScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-2 pb-2">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <View className="flex-row justify-between items-center pb-2 border-b border-gray-300 bg-white">
         <TouchableOpacity onPress={handleGoBack} className="p-2">
@@ -151,33 +158,50 @@ export default function CreateNoteScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Title Input */}
-      <TextInput
-        className="text-2xl font-bold text-black mb-2"
-        placeholder="Note title..."
-        value={title}
-        onChangeText={setTitle}
-        placeholderTextColor="#9ca3af"
-      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardAvoidingView}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      >
+        {/* Title Input */}
+        <TextInput
+          className="text-2xl font-bold text-black mb-2"
+          placeholder="Note title..."
+          value={title}
+          onChangeText={setTitle}
+          placeholderTextColor="#9ca3af"
+        />
 
-      <RichEditor
-        ref={richText}
-        initialContentHTML={content}
-        onChange={setContent}
-        style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}
-        editorStyle={editorStyle}
-        placeholder="Start typing your note..."
-      />
-      {/* Rich Text Editor */}
-      <RichToolbar
-        editor={richText}
-        actions={toolbarActions}
-        iconTint="black"
-        selectedIconTint="blue"
-        style={toolbarStyle}
-      />
+        <RichEditor
+          ref={richText}
+          initialContentHTML={content}
+          onChange={setContent}
+          style={{ flex: 1, padding: 5, backgroundColor: "#fff" }}
+          editorStyle={editorStyle}
+          placeholder="Start typing your note..."
+        />
+        <View className="border-t-[1px] border-gray-300 py-6">
+          <RichToolbar
+            editor={richText}
+            actions={toolbarActions}
+            iconTint="black"
+            selectedIconTint="blue"
+            style={toolbarStyle}
+          />
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20, // Add some bottom padding
+  },
+});
 
 export { CreateNoteScreen };

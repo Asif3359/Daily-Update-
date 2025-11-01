@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNotes } from './useNotes';
 
-const API_BASE_URL = 'http://10.0.2.2:3000/api';
+const API_BASE_URL = 'https://daily-update-backend-cve5.onrender.com/api';
 
 interface SyncResult {
     success: boolean;
